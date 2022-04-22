@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://AsteroidPolygon.cs" type="Script" id=1]
+[ext_resource path="res://Asteroid.cs" type="Script" id=2]
+
+[node name="Asteroid" type="RigidBody2D"]
+collision_layer = 2
+collision_mask = 0
+gravity_scale = 0.0
+contacts_reported = 5
+contact_monitor = true
+linear_damp = 0.0
+angular_damp = 0.0
+script = ExtResource( 2 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+scale = Vector2( 50, 50 )
+polygon = PoolVector2Array( -1, -1, 1, -1, 1, 1, -1, 1 )
+
+[node name="Polygon2D" type="Polygon2D" parent="CollisionPolygon2D"]
+script = ExtResource( 1 )

@@ -1,0 +1,8 @@
+/home/gabe/Documents/Asteroids/.mono/temp/obj/Debug/Asteroids.csprojAssemblyReference.cache
+/home/gabe/Documents/Asteroids/.mono/temp/obj/Debug/Asteroids.AssemblyInfoInputs.cache
+/home/gabe/Documents/Asteroids/.mono/temp/obj/Debug/Asteroids.AssemblyInfo.cs
+/home/gabe/Documents/Asteroids/.mono/temp/obj/Debug/Asteroids.csproj.CoreCompileInputs.cache
+/home/gabe/Documents/Asteroids/.mono/temp/bin/Debug/Asteroids.dll
+/home/gabe/Documents/Asteroids/.mono/temp/bin/Debug/Asteroids.pdb
+/home/gabe/Documents/Asteroids/.mono/temp/obj/Debug/Asteroids.dll
+/home/gabe/Documents/Asteroids/.mono/temp/obj/Debug/Asteroids.pdb
