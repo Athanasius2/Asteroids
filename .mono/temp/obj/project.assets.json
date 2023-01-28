@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/gabe/Documents/Asteroids/Asteroids.csproj",
+      "projectUniqueName": "/home/gabe/Documents/godot_projects/Asteroids/Asteroids.csproj",
       "projectName": "Asteroids",
-      "projectPath": "/home/gabe/Documents/Asteroids/Asteroids.csproj",
+      "projectPath": "/home/gabe/Documents/godot_projects/Asteroids/Asteroids.csproj",
       "packagesPath": "/home/gabe/.nuget/packages/",
-      "outputPath": "/home/gabe/Documents/Asteroids/.mono/temp/obj/",
+      "outputPath": "/home/gabe/Documents/godot_projects/Asteroids/.mono/temp/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/gabe/.config/NuGet/NuGet.Config"
@@ -30,6 +30,7 @@
       },
       "frameworks": {
         "net472": {
+          "targetAlias": "net472",
           "projectReferences": {}
         }
       },
@@ -41,6 +42,7 @@
     },
     "frameworks": {
       "net472": {
+        "targetAlias": "net472",
         "runtimeIdentifierGraphPath": "/usr/lib/mono/msbuild/Current/bin/RuntimeIdentifierGraph.json"
       }
     }

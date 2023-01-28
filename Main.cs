@@ -10,6 +10,8 @@ public class Main : Node2D
 	private PackedScene asteroidScene;
 	private PackedScene bulletScene;
 	
+	RandomNumberGenerator rng = new RandomNumberGenerator();
+	
 	//used to access instance of Player scene
 	private Player player;
 	//Used to set value of bullet.LinearVelocity when bullet is first created
@@ -20,6 +22,8 @@ public class Main : Node2D
 	private float fireRate = 2f;
 	//keep track of time since last bullet fired in seconds
 	private float timeSinceLastFire = 0;
+	//number of asteroids to spawn on startup
+	private int numInitAsteroids = 2;
 	
 	//Keep track of which groups I'm using
 	String asteroidsGroup = "asteroids";
@@ -30,9 +34,9 @@ public class Main : Node2D
 	// 3 being the smallest and final stage.
 	//When an asteroid is shot, it is destroyed and replaced by two asteroids
 	// of the proceeding stage. 
-	private void addAsteroids(int number, int stage)
+	private void addAsteroids(Godot.Collections.Array<Vector2> positions, int stage)
 	{
-		for (int i = 0; i < number; i++)
+		foreach (Vector2 pos in positions)
 		{
 			//Use the Asteroid scene to create a new instance.
 			Asteroid ast = (Asteroid) asteroidScene.Instance();
@@ -47,6 +51,8 @@ public class Main : Node2D
 			
 			//Add it to the tree so it will do things!
 			AddChild(ast);
+			ast.GlobalPosition = pos;
+			
 		}
 	}
 	
@@ -91,13 +97,26 @@ public class Main : Node2D
 		playerScene = GD.Load<PackedScene>("res://Player.tscn");
 		asteroidScene = GD.Load<PackedScene>("res://Asteroid.tscn");
 		bulletScene = GD.Load<PackedScene>("res://Bullet.tscn");
-			
+		//Make random numbers random
+		rng.Randomize();
 		//Create our one and only instance of Player
 		player = (Player) playerScene.Instance();
 		//Add it to the tree so it does stuff.
 		this.AddChild(player);
+		//Create Array of positions for initial asteroids
+		Godot.Collections.Array<Vector2> positions = 
+			new Godot.Collections.Array<Vector2>();
+		
+		//Create random positions for initial asteroids
+		for (int i = 0; i < numInitAsteroids; i++)
+		{
+			positions.Add(new Vector2(
+				rng.RandfRange(0, GetViewportRect().Size.x), 
+					rng.RandfRange(0, GetViewportRect().Size.y)));		
+		}
+		
 		//Instantiate our starting number of stage 1 asteroids
-		this.addAsteroids(2, 1);
+		this.addAsteroids(positions, 1);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

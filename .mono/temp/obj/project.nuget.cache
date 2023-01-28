@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "SrkrBJodpdcIvBtdyKlHvFctZ6N44JNzVk9TIuboJ9qJiWJUjoixN2lpE/7hcNGiCoxEvOsspUkbHVe2dN9FBA==",
+  "dgSpecHash": "tCm/BpNcu832UKMZCeggOKsvN7cAJsPkEnpe6o8dEiV1NQU6b8WZrmKRQfNu4bX/PmdM9qXdPoQgbZsmGUrDMw==",
   "success": true,
-  "projectFilePath": "/home/gabe/Documents/Asteroids/Asteroids.csproj",
+  "projectFilePath": "/home/gabe/Documents/godot_projects/Asteroids/Asteroids.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
