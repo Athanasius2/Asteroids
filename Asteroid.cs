@@ -5,6 +5,8 @@ using static LoopingRigidBody2D;
 
 public class Asteroid : LoopingRigidBody2D
 {
+	public bool destroy { get; private set; } = false;
+	public int stage {get; set;}
 	//Create random numbers to intialize this asteroid.
 	RandomNumberGenerator rng = new RandomNumberGenerator();
 	// Called when the node enters the scene tree for the first time.
@@ -33,11 +35,12 @@ public class Asteroid : LoopingRigidBody2D
 		//if asteroid goes off edge, loop around.
 		this.Loop(state);
 	}
-	
 	//called when bullet and asteroid collide. Connection is created in Main.cs
 	private void OnBulletHitAsteroid(Node body)
 	{
 		//Destroy this asteroid.
 		body.QueueFree();
+		//Mark asteroid so we know it's going to be deleted
+		this.destroy = true;
 	}
 }
