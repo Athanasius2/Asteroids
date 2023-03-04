@@ -25,10 +25,6 @@ public class Main : Node2D
 	//number of asteroids to spawn on startup
 	private int numInitAsteroids = 2;
 	
-	//Keep track of Asteroid Instances 
-	private List<Asteroid> asteroids = new List<Asteroid>();
-	//Godot.Collections.Array<Asteroid> asteroids = 
-	//		new Godot.Collections.Array<Asteroid>();
 	//Keep track of which groups I'm using
 	//Going to remove groups eventually because they don't work on individual
 	//instance, but EVERY instance of a node, which is not what we want
@@ -49,21 +45,17 @@ public class Main : Node2D
 			
 			//When this instance of Asteroid collides with player, call
 			//OnAsteroidHitShip() in the Player.cs script
-			ast.Connect("body_entered", player, "OnAsteroidHitShip");
+			//ast.Connect("body_entered", player, "OnAsteroidHitShip");
 			
 			//label this instance as an asteroid so we can easily access it
 			//when we need to useing GetTree().GetNodesInGroup(asteroidGroup)
 			ast.AddToGroup(asteroidsGroup);
 			
-			//put instance in asteroids array so we can easily access it.
-			asteroids.Add(ast);
 			//set position and stage before adding to tree
 			ast.GlobalPosition = pos;
 			ast.stage = stage;
 			//Add it to the tree so it will do things!
 			AddChild(ast);
-			
-			
 		}
 	}
 	
@@ -72,7 +64,7 @@ public class Main : Node2D
 	{
 		//Create Array of positions for asteroids
 		List<Vector2> positions = new List<Vector2>();
-		//Create random positions for initial asteroids
+		//Create random positions for asteroids
 		for (int i = 0; i < number; i++)
 			positions.Add(new Vector2(
 				rng.RandfRange(0, GetViewportRect().Size.x), 
@@ -138,30 +130,16 @@ public class Main : Node2D
 	{
 		//Keep track of how long it's been since the last bullet as been fired
 		timeSinceLastFire += delta;
+		
 		//For each destroyed asteroid, add two new asteroids
-		foreach (Asteroid ast in asteroids.FindAll(x => x.destroy))
+		if (Asteroid.destroy)
 		{
-			if (ast.stage < 3)
-			{
-				List<Vector2> positions = new List<Vector2>();
- 				positions.Add(new Vector2(ast.GlobalPosition));
-				positions.Add(new Vector2(ast.GlobalPosition));
-				addAsteroids(positions, ast.stage + 1);
-			}
+			Asteroid.destroy = false;
+			List<Vector2> positions = new List<Vector2>();
+ 			positions.Add(new Vector2(Asteroid.LastDestroyedPosition));
+			positions.Add(new Vector2(Asteroid.LastDestroyedPosition));
+			addAsteroids(positions, 1);
 		}
-		//Would like to do this with foreach but can't make it work
-		//Iterate backwords so we can remove elements as we go without resizing 
-		//the array and causing out of bounds exceptions 
-		//for (int i = asteroids.size(); i >= 0; i--)
-		//{
-			//if (asteroids[i].destroy)
-			//{
-				//GD.Print("asteroid being deleted");
-				//Remove ast from array because it's destroyed
-			//	asteroids.Remove(i);
-				
-		//	}
-		//}
 		
 		//Is true if "ui_accept" action is being pressed (usually activated
 		//by Space or Enter keys).  I should probably create unique actions

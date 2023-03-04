@@ -5,8 +5,11 @@ using static LoopingRigidBody2D;
 
 public class Asteroid : LoopingRigidBody2D
 {
-	public bool destroy { get; private set; } = false;
-	public int stage {get; set;}
+	//destroy = true if an astroid was just destroyed
+	public static bool destroy {get; set;} = false;
+	//set to position of last destroyed asteroid
+	public static Vector2 LastDestroyedPosition = new Vector2();
+	public int stage {get; set;} 
 	//Create random numbers to intialize this asteroid.
 	RandomNumberGenerator rng = new RandomNumberGenerator();
 	// Called when the node enters the scene tree for the first time.
@@ -14,12 +17,6 @@ public class Asteroid : LoopingRigidBody2D
 	{
 		//So we don't get deterministic asteroids
 		rng.Randomize();
-		//Start the asteroid somewhere within the range of the viewport.
-		//Might have to start handling this in Main.cs so we know where to start
-		//the the smaller asteroids that the bigger ones break into.
-		this.GlobalPosition = 
-			new Vector2(rng.RandfRange(0, GetViewportRect().Size.x), 
-				rng.RandfRange(0, GetViewportRect().Size.y));
 		//random starting velocity
 		this.LinearVelocity = 
 			new Vector2(rng.RandfRange(-100, 100), rng.RandfRange(-100, 100));
@@ -35,12 +32,14 @@ public class Asteroid : LoopingRigidBody2D
 		//if asteroid goes off edge, loop around.
 		this.Loop(state);
 	}
+
 	//called when bullet and asteroid collide. Connection is created in Main.cs
 	private void OnBulletHitAsteroid(Node body)
 	{
-		//Destroy this asteroid.
+		//Let Main know that an asteroid was destroyed
+		Asteroid.destroy = true;
+		//Save position of destroyed asteroid
+		Asteroid.LastDestroyedPosition = body.GlobalPosition;
 		body.QueueFree();
-		//Mark asteroid so we know it's going to be deleted
-		this.destroy = true;
 	}
 }
