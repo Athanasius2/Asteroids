@@ -22,14 +22,13 @@ public class Bullet : LoopingRigidBody2D
 	public override void _Process(float delta)
 	{
 		age += delta;
-		if (age > 2f)
-			QueueFree();
+		if (age > MAX_AGE) QueueFree();
 	}
 	
 	//
 	private void OnAsteroidHitBullet(Node body)
 	{
-		//GD.Print("Bullet destroyed");
+		GD.Print("Bullet destroyed");
 		body.QueueFree();
 	}
 }
