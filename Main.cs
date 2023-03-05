@@ -6,9 +6,9 @@ public class Main : Node2D
 {
 	//When scenes are loaded from the disk, they are stored in the PackedScene
 	//class, which we use to create new instances.
-	private PackedScene playerScene;
-	private PackedScene asteroidScene;
-	private PackedScene bulletScene;
+	public static PackedScene playerScene {get; private set;}
+	public static PackedScene asteroidScene {get; private set;}
+	public static PackedScene bulletScene {get; private set;}
 	
 	RandomNumberGenerator rng = new RandomNumberGenerator();
 	
@@ -28,60 +28,23 @@ public class Main : Node2D
 	//Keep track of which groups I'm using
 	//Going to remove groups eventually because they don't work on individual
 	//instance, but EVERY instance of a node, which is not what we want
-	String asteroidsGroup = "asteroids";
-	String bulletsGroup = "bullets";
-	
-	//int number is the number of asteroids we are adding
-	//int stage is the asteroid stage, 1 being the first and biggest stage,
-	// 3 being the smallest and final stage.
-	//When an asteroid is shot, it is destroyed and replaced by two asteroids
-	// of the proceeding stage. 
-	private void addAsteroids(List<Vector2> positions, int stage)
-	{
-		foreach (Vector2 pos in positions)
-		{
-			//Use the Asteroid scene to create a new instance.
-			Asteroid ast = (Asteroid) asteroidScene.Instance();
-			
-			//When this instance of Asteroid collides with player, call
-			//OnAsteroidHitShip() in the Player.cs script
-			//ast.Connect("body_entered", player, "OnAsteroidHitShip");
-			
-			//label this instance as an asteroid so we can easily access it
-			//when we need to useing GetTree().GetNodesInGroup(asteroidGroup)
-			ast.AddToGroup(asteroidsGroup);
-			
-			//set position and stage before adding to tree
-			ast.GlobalPosition = pos;
-			ast.stage = stage;
-			//Add it to the tree so it will do things!
-			AddChild(ast);
-		}
-	}
-	
-	//Adds n stage 1 asteroids at random positions
-	private void addAsteroids(int number)
-	{
-		//Create Array of positions for asteroids
-		List<Vector2> positions = new List<Vector2>();
-		//Create random positions for asteroids
-		for (int i = 0; i < number; i++)
-			positions.Add(new Vector2(
-				rng.RandfRange(0, GetViewportRect().Size.x), 
-					rng.RandfRange(0, GetViewportRect().Size.y)));
+	//String asteroidsGroup = "asteroids";
+	//String bulletsGroup = "bullets";
 		
-		//Instantiate our starting number of stage 1 asteroids
-		addAsteroids(positions, 1);
+	private static void LoadScenes()
+	{
+		playerScene = GD.Load<PackedScene>("res://Player.tscn");
+		asteroidScene = GD.Load<PackedScene>("res://Asteroid.tscn");
+		bulletScene = GD.Load<PackedScene>("res://Bullet.tscn");
 	}
-	
-	//
+
 	private void addBullet()
 	{
 		Bullet bullet = (Bullet) bulletScene.Instance();
 		
 		//Every bullet's starting position will be at the player's 
 		//current position
-		bullet.Position = player.Position;
+  		bullet.Position = player.Position;
 		
 		//Bullet velocity does NOT depend on the players velocity, but will 
 		//always be the same no matter what.
@@ -89,8 +52,7 @@ public class Main : Node2D
 		bullet.LinearVelocity = bulletVelocity.Rotated(player.Rotation);
 		
 		//Iterate through every Asteroid in the tree
-		foreach (Asteroid ast in 
-			this.GetTree().GetNodesInGroup(asteroidsGroup)){
+		foreach (Asteroid ast in Asteroid.asteroids){
 			//when the bullet collides with the asteroid, call 
 			//OnBulletHitAsteroid() in Asteroid.cs, which destroys ast
 			bullet.Connect("body_entered", ast, "OnBulletHitAsteroid");
@@ -103,25 +65,32 @@ public class Main : Node2D
 		}
 		
 		//We have a "bullets" just like we have an "asteroids" group.
-		bullet.AddToGroup(bulletsGroup);
+		//bullet.AddToGroup(bulletsGroup);
 		//add to tree so it does stuff
 		AddChild(bullet);
 	}
 	
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		//Load our scenes so we can create instances of them later
-		playerScene = GD.Load<PackedScene>("res://Player.tscn");
-		asteroidScene = GD.Load<PackedScene>("res://Asteroid.tscn");
-		bulletScene = GD.Load<PackedScene>("res://Bullet.tscn");
+		LoadScenes();
 		//Make random numbers random
 		rng.Randomize();
 		//Create our one and only instance of Player
 		player = (Player) playerScene.Instance();
 		//Add it to the tree so it does stuff.
 		this.AddChild(player);
-		addAsteroids(numInitAsteroids);
+		//Create Array of positions for asteroids
+		List<Vector2> positions = new List<Vector2>();
+		//Create random positions for asteroids
+		for (int i = 0; i < numInitAsteroids; i++)
+			positions.Add(new Vector2(
+				rng.RandfRange(0, GetViewportRect().Size.x), 
+					rng.RandfRange(0, GetViewportRect().Size.y)));
+		//Add stage 1 asteroids using positions created
+		Asteroid.addAsteroids(positions, 1);
 		
 	}
 
@@ -131,15 +100,8 @@ public class Main : Node2D
 		//Keep track of how long it's been since the last bullet as been fired
 		timeSinceLastFire += delta;
 		
-		//For each destroyed asteroid, add two new asteroids
-		if (Asteroid.destroy)
-		{
-			Asteroid.destroy = false;
-			List<Vector2> positions = new List<Vector2>();
- 			positions.Add(new Vector2(Asteroid.LastDestroyedPosition));
-			positions.Add(new Vector2(Asteroid.LastDestroyedPosition));
-			addAsteroids(positions, 1);
-		}
+		foreach (Asteroid ast in Asteroid.newAsteroids) AddChild(ast);
+		Asteroid.newAsteroids.Clear();
 		
 		//Is true if "ui_accept" action is being pressed (usually activated
 		//by Space or Enter keys).  I should probably create unique actions
