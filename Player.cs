@@ -18,7 +18,7 @@ public class Player : LoopingRigidBody2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _IntegrateForces(Physics2DDirectBodyState state)
 	{
-		this.Loop(state);
+		base._IntegrateForces(state);
 		
 		if(Input.IsActionPressed("ui_up"))
 			state.ApplyCentralImpulse(_thrust.Rotated(this.Rotation));

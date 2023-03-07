@@ -6,15 +6,11 @@ using static LoopingRigidBody2D;
 
 public class Asteroid : LoopingRigidBody2D
 {
-	//destroy = true if an astroid was just destroyed
-	public static bool destroy {get; set;} = false;
-	//set to position of last destroyed asteroid
-	public static Vector2 LastDestroyedPosition {get; set;} = new Vector2();
 	//Keep track of asteroids we have created
 	public static List<Asteroid> asteroids {get; private set;} = new List<Asteroid>();
 	//Main will use this list to add newly created asteroids to Tree
 	public static List<Asteroid> newAsteroids {get; private set;} = new List<Asteroid>();
-	public int stage {get; set;} 
+	public int stage {get; private set;} 
 	//Create random numbers to intialize this asteroid.
 	RandomNumberGenerator rng = new RandomNumberGenerator();
 	
@@ -23,22 +19,13 @@ public class Asteroid : LoopingRigidBody2D
 	// 3 being the smallest and final stage.
 	//When an asteroid is shot, it is destroyed and replaced by two asteroids
 	// of the proceeding stage. 
-	
 	public static void addAsteroids(List<Vector2> positions, int stage)
 	{
 		foreach (Vector2 pos in positions)
 		{
 			//Use the Asteroid scene to create a new instance.
 			Asteroid ast = (Asteroid) Main.asteroidScene.Instance();
-			
-			//When this instance of Asteroid collides with player, call
-			//OnAsteroidHitShip() in the Player.cs script
-			//ast.Connect("body_entered", player, "OnAsteroidHitShip");
-			
-			//label this instance as an asteroid so we can easily access it
-			//when we need to useing GetTree().GetNodesInGroup(asteroidGroup)
-			//ast.AddToGroup(asteroidsGroup);
-			
+
 			//set position and stage before adding to tree
 			ast.GlobalPosition = pos;
 			ast.stage = stage;
@@ -61,13 +48,6 @@ public class Asteroid : LoopingRigidBody2D
 		this.AngularVelocity = rng.RandfRange(-1, 1);
 		asteroids.Add(this);
 	}
-	
-	//Do physics on the asteroid every physics frame.
-	public override void _IntegrateForces(Physics2DDirectBodyState state)
-	{
-		//if asteroid goes off edge, loop around.
-		this.Loop(state);
-	}
 
 	//make sure to remove Asteroids from list before they get destroyed
 	public override void _ExitTree()
@@ -78,15 +58,21 @@ public class Asteroid : LoopingRigidBody2D
 	//called when bullet and asteroid collide. Connection is created in Main.cs
 	private void OnBulletHitAsteroid(Node body)
 	{
-		//Create two new asteroids in place of the one we just hit
-		if (this.stage < 3)
+		//have to make sure that body == this, because EVERY instance
+		//of Asteroid will call this when any individual instance is hit
+		if (body == this)
 		{
-			List<Vector2> positions = new List<Vector2>();
- 			positions.Add(new Vector2( (( RigidBody2D ) body).GlobalPosition));
-			positions.Add(new Vector2( (( RigidBody2D ) body).GlobalPosition));
-			addAsteroids(positions, this.stage++);
+			//Create two new asteroids in place of the one we just hit
+			if (this.stage < 3)
+			{
+				GD.Print(this);
+				List<Vector2> positions = new List<Vector2>();
+				positions.Add(new Vector2( ((RigidBody2D)body).GlobalPosition ));
+ 				positions.Add(new Vector2( ((RigidBody2D)body).GlobalPosition ));
+				addAsteroids(positions, this.stage + 1);
+			}
+			//destroy asteroid we just hit
+			body.QueueFree();
 		}
-		//destroy asteroid we just hit
-		body.QueueFree();
 	}
 }
