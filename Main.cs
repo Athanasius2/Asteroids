@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+
 public class Main : Node2D
 {
 	/* When scenes are loaded from the disk, they are stored in the PackedScene
@@ -12,7 +13,7 @@ public class Main : Node2D
 	
 	RandomNumberGenerator rng = new RandomNumberGenerator();
 	
-	//Keep track of asteroids we have created
+	//Keep track of asteroids we have created so we can connect them with bullets
 	private List<Asteroid> asteroids = new List<Asteroid>();
 
 	private Player player;
@@ -25,10 +26,11 @@ public class Main : Node2D
 	/// <summary>
 	/// Create new Asteroids and add them to newAsteroids list
 	/// </summary>
-	/// <param name="asteroids">List of tuples containing the positions and stages of asteroids to be created</param>
-	private void addAsteroids(List<(Vector2, int)> asteroids)
+	/// <param name="asteroids">List of tuples containing the positions and stages 
+	/// of asteroids to be created</param>
+	private void addAsteroids(List<(Vector2 position , int stage)> newAsteroids)
 	{
-		foreach ((Vector2 position, int stage) a in asteroids)
+		foreach (var a in newAsteroids)
 		{
 			Asteroid ast = (Asteroid) asteroidScene.Instance();
 
@@ -38,7 +40,8 @@ public class Main : Node2D
 			ast.Connect("body_entered", player, "OnAsteroidHitShip");
 			//remove ast from asteroids list when it is destroyed
 			ast.Connect("child_exiting_tree", this, "OnAsteroidExitTree");
-			AddChild(ast);
+			asteroids.Add(ast);
+			this.AddChild(ast);
 		}
 	}
 
@@ -79,6 +82,7 @@ public class Main : Node2D
 		//Keep track of how long it's been since the last bullet as been fired
 		secondsSinceLastFire += delta;
 		addAsteroids(Asteroid.newAsteroids);
+		Asteroid.newAsteroids.Clear();
 		
 		//Enter and Space are the shoot buttons
 		if(Input.IsActionPressed("ui_accept"))
@@ -93,8 +97,10 @@ public class Main : Node2D
 		}
 	}
 
-	private void OnAsteroidExitTree(Node asteroid)
+	private void OnAsteroidExitTree(Node poly)
 	{
-		asteroids.Remove((Asteroid) asteroid);
+		//I was originally expecting poly to be an Asteroid, but it is a CollisionPolygon2d instead
+		//I don't know why
+		asteroids.Remove( (Asteroid) poly.GetParent());
 	}
 }

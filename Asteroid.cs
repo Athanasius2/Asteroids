@@ -8,27 +8,41 @@ public class Asteroid : LoopingRigidBody2D
 {
 	//This is how OnBulletHitAsteroid will tell Main to create new asteroids
 	public static List<(Vector2 position, int stage)> newAsteroids 
-	{
-		//newAsteroids should be cleared when it is accessed
-		get { var ret = new List<(Vector2, int)>(newAsteroids); newAsteroids.Clear(); return ret; }
-		private set { newAsteroids = value; }
-	}
-	public int stage { set; get; }
-	private RandomNumberGenerator rng = new RandomNumberGenerator(); 
+		{ get; private set; } = new List<(Vector2, int)>();
 	
-	static Asteroid()
-	{
-		newAsteroids = new List<(Vector2, int)>(); 
-	}
+	public int stage { set; get; }
+	private RandomNumberGenerator rng = new RandomNumberGenerator();
+	private CollisionPolygon2D AsteroidPolygon = new CollisionPolygon2D();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		rng.Randomize();
-		this.LinearVelocity = 
+		LinearVelocity = 
 			new Vector2(rng.RandfRange(-100, 100), rng.RandfRange(-100, 100));
-		this.Rotation = rng.RandfRange(-100, 100);
-		this.AngularVelocity = rng.RandfRange(-1, 1);
+		Rotation = rng.RandfRange(-100, 100);
+		AngularVelocity = rng.RandfRange(-1, 1);
+
+		AsteroidPolygon.Polygon = CreatePolygon();
+		AddChild(AsteroidPolygon);
+	}
+
+	public override void _Draw()
+	{
+		DrawPolygon(AsteroidPolygon.Polygon, new Color[] {new Color("FFFFFF")});
+	}
+
+	//TODO implement procedurally generated polygons
+	private Vector2[] CreatePolygon()
+	{
+		var poly = new Vector2[]
+		{
+			new Vector2(-50, -50),
+			new Vector2(50, -50),
+			new Vector2(50, 50),
+			new Vector2(-50, 50)
+		};
+		return poly;
 	}
 
 	//called when bullet and asteroid collide. Connection is created in Main.cs
@@ -39,7 +53,7 @@ public class Asteroid : LoopingRigidBody2D
 		if (body == this)
 		{
 			//Create two new asteroids in place of the one we just hit
-			if (this.stage < 3)
+			if (stage < 3)
 			{
 				GD.Print(this);
 				newAsteroids.Add((new Vector2( ((RigidBody2D) body).GlobalPosition ), stage + 1));
