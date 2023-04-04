@@ -21,7 +21,8 @@ public class Main : Node2D
 	private float fireRate = 2f;	//bullets per second
 	private float secondsSinceLastFire = 0;
 	private int numInitAsteroids = 2; //number of asteroids to spawn on startup
-	private int initStage = 1;
+	private int initStage = 1;	//starting stage of asteroids
+	private int level = 0; //what level the player has reached in the game
 
 	/// <summary>
 	/// Create new Asteroids and add them to newAsteroids list
@@ -45,19 +46,46 @@ public class Main : Node2D
 		}
 	}
 
+	/// <summary>
+	/// Create stage one Asteroids at random positions
+	/// </summary>
+	/// <param name="n">Number of asteroids to create</param>
+	private void addAsteroids(int n)
+	{
+		//Create List of positions for asteroids
+		List<(Vector2 pos, int stage)> newAsteroids = new List<(Vector2, int)>();
+		//Create random positions for asteroids
+		for (int i = 0; i < n; i++)
+			newAsteroids.Add((new Vector2( 
+				rng.RandfRange(0, GetViewportRect().Size.x), 
+					rng.RandfRange(0, GetViewportRect().Size.y)), initStage));
+		
+		addAsteroids(newAsteroids);
+	}
+
+	/// <summary>
+	/// Create a bullet at player's position and connect it with all the asteroids
+	/// </summary>
 	private void addBullet()
 	{
-		Bullet bullet = (Bullet) bulletScene.Instance();
-  		bullet.Position = player.Position;
-		bullet.LinearVelocity = bulletVelocity.Rotated(player.Rotation);
-		
-		//Send signals to Bullets and Asteroids when they collide
-		foreach (Asteroid ast in asteroids)
+		try
 		{
-			bullet.Connect("body_entered", ast, "OnBulletHitAsteroid");
-			ast.Connect("body_entered", bullet, "OnAsteroidHitBullet");
+			Bullet bullet = (Bullet) bulletScene.Instance();
+  			bullet.Position = player.Position;
+			bullet.LinearVelocity = bulletVelocity.Rotated(player.Rotation);
+			//Send signals to Bullets and Asteroids when they collide
+			foreach (Asteroid ast in asteroids)
+			{
+				bullet.Connect("body_entered", ast, "OnBulletHitAsteroid");
+				ast.Connect("body_entered", bullet, "OnAsteroidHitBullet");
+			}
+			AddChild(bullet);
 		}
-		AddChild(bullet);
+		catch (Exception e) 
+		{
+			GD.Print("Game Over");
+		}
+		
 	}
 	
 	// Called when the node enters the scene tree for the first time.
@@ -66,14 +94,7 @@ public class Main : Node2D
 		rng.Randomize();
 		player = (Player) playerScene.Instance();
 		AddChild(player);
-		//Create List of positions for asteroids
-		List<(Vector2 pos, int stage)> initAsteroids = new List<(Vector2, int)>();
-		//Create random positions for asteroids
-		for (int i = 0; i < numInitAsteroids; i++)
-			initAsteroids.Add((new Vector2( 
-				rng.RandfRange(0, GetViewportRect().Size.x), 
-					rng.RandfRange(0, GetViewportRect().Size.y)), initStage));
-		addAsteroids(initAsteroids);
+		addAsteroids(numInitAsteroids);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -81,8 +102,17 @@ public class Main : Node2D
 	{
 		//Keep track of how long it's been since the last bullet as been fired
 		secondsSinceLastFire += delta;
-		addAsteroids(Asteroid.newAsteroids);
-		Asteroid.newAsteroids.Clear();
+		if (Asteroid.newAsteroids.Count > 0)
+		{
+			addAsteroids(Asteroid.newAsteroids);
+			Asteroid.newAsteroids.Clear();
+		}
+		//check if all the asteroids have been destroyed
+		if (asteroids.Count == 0)
+		{
+			level++;
+			addAsteroids(level + numInitAsteroids);
+		}
 		
 		//Enter and Space are the shoot buttons
 		if(Input.IsActionPressed("ui_accept"))
@@ -97,9 +127,13 @@ public class Main : Node2D
 		}
 	}
 
+	/// <summary>
+	/// When asteroid is destroyed, remove it's reference from astroids list
+	/// </summary>
+	/// <param name="poly">Child CollisionPolygon2D of the Asteroid that was destroyed</param>
 	private void OnAsteroidExitTree(Node poly)
 	{
-		//I was originally expecting poly to be an Asteroid, but it is a CollisionPolygon2d instead
+		//I was originally expecting the input to be an Asteroid, but it is a CollisionPolygon2d instead
 		//I don't know why
 		asteroids.Remove( (Asteroid) poly.GetParent());
 	}

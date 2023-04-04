@@ -7,8 +7,7 @@ using static LoopingRigidBody2D;
 public class Asteroid : LoopingRigidBody2D
 {
 	//This is how OnBulletHitAsteroid will tell Main to create new asteroids
-	public static List<(Vector2 position, int stage)> newAsteroids 
-		{ get; private set; } = new List<(Vector2, int)>();
+	public static List<(Vector2 position, int stage)> newAsteroids = new List<(Vector2, int)>();
 	
 	public int stage { set; get; }
 	private RandomNumberGenerator rng = new RandomNumberGenerator();
@@ -35,12 +34,20 @@ public class Asteroid : LoopingRigidBody2D
 	//TODO implement procedurally generated polygons
 	private Vector2[] CreatePolygon()
 	{
+		int scale;
+		if (stage == 1)
+			scale = 50;
+		else if (stage == 2)
+			scale = 35;
+		else
+			scale = 20;
+		
 		var poly = new Vector2[]
 		{
-			new Vector2(-50, -50),
-			new Vector2(50, -50),
-			new Vector2(50, 50),
-			new Vector2(-50, 50)
+			new Vector2(-scale, -scale),
+			new Vector2(scale, -scale),
+			new Vector2(scale, scale),
+			new Vector2(-scale, scale)
 		};
 		return poly;
 	}
