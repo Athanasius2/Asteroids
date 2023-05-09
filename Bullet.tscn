@@ -1,12 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://BulletShape.cs" type="Script" id=1]
 [ext_resource path="res://Bullet.cs" type="Script" id=2]
 
-[sub_resource type="CircleShape2D" id=1]
-
 [node name="Bullet" type="RigidBody2D"]
-collision_layer = 0
+collision_layer = 4
 collision_mask = 2
 gravity_scale = 0.0
 contacts_reported = 1
@@ -14,8 +11,3 @@ contact_monitor = true
 can_sleep = false
 linear_damp = 0.0
 script = ExtResource( 2 )
-
-[node name="BulletShape" type="CollisionShape2D" parent="."]
-scale = Vector2( 0.5, 0.5 )
-shape = SubResource( 1 )
-script = ExtResource( 1 )
