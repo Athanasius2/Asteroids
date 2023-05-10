@@ -9,7 +9,7 @@ public class Bullet : LoopingRigidBody2D {
 
 	public override void _Ready() {
 		shape.Shape = new CircleShape2D();
-		((CircleShape2D) shape.Shape).Radius = 5f;
+		((CircleShape2D) shape.Shape).Radius = 2.5f;
 		AddChild(shape);
 	}
 
@@ -20,7 +20,7 @@ public class Bullet : LoopingRigidBody2D {
 
 	public override void _Draw(){
 		Color color = new Color(0xff, 0, 0);
-		DrawCircle(shape.Position, 2.5f, color);
+		DrawCircle(shape.Position, ((CircleShape2D) shape.Shape).Radius, color);
 	}
 	
 	private void OnAsteroidHitBullet(Node body){
