@@ -16,6 +16,7 @@ public class Main : Node2D {
 	private int numberOfStartingAsteroids = 2; 
 	private int initStage = 1;	//starting stage of asteroids
 	private int level = 0;
+	private int score = 0;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
@@ -51,10 +52,12 @@ public class Main : Node2D {
 
 			newAsteroid.GlobalPosition = asteroidPosition.position;
 			newAsteroid.stage = asteroidPosition.stage;
-			//collision detection between player and asteroid
+			//Collision detection between player and asteroid.
 			newAsteroid.Connect("body_entered", player, "OnAsteroidHitShip");
-			//remove ast from asteroids list when it is destroyed
+			//Remove ast from asteroids list when it is destroyed.
 			newAsteroid.Connect("child_exiting_tree", this, "OnAsteroidExitTree");
+			//Increment score when asteroid is destroyed.
+			newAsteroid.Connect("child_exiting_tree", this, "score");
 			asteroids.Add(newAsteroid);
 			this.AddChild(newAsteroid);
 		}
@@ -104,5 +107,9 @@ public class Main : Node2D {
 	
 	private void OnAsteroidExitTree(Node poly) {
 		asteroids.Remove( (Asteroid) poly.GetParent());
+	}
+	
+	private void score() {
+		score += 1;
 	}
 }
