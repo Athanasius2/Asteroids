@@ -2,3 +2,4 @@ changes.txt
 .git
 .mono
 .import
+mono_crash*.json

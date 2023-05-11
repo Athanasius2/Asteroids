@@ -6,6 +6,7 @@ public class Main : Node2D {
 	private PackedScene playerScene = GD.Load<PackedScene>("res://Player.tscn");
 	private PackedScene asteroidScene = GD.Load<PackedScene>("res://Asteroid.tscn");
 	private PackedScene bulletScene = GD.Load<PackedScene>("res://Bullet.tscn");
+	private DynamicFont font = new DynamicFont();
 
 	private RandomNumberGenerator rng = new RandomNumberGenerator();
 	private List<Asteroid> asteroids = new List<Asteroid>();
@@ -21,9 +22,15 @@ public class Main : Node2D {
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		rng.Randomize();
+		font.FontData = (DynamicFontData)GD.Load("res://fonts/FreeMonoBold.ttf");
+		font.Size = 16;
 		player = (Player) playerScene.Instance();
 		AddChild(player);
 		addAsteroids(numberOfStartingAsteroids);
+	}
+
+	public override void _Draw() {
+		DrawString(font, new Vector2(5, 20), score.ToString("D4"));
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -38,6 +45,7 @@ public class Main : Node2D {
 		}
 		handleUserInput();
 	}
+	
 
 	private void handleUserInput() {
 		if(Input.IsActionPressed("ui_accept")) shootIfReady();
@@ -56,8 +64,6 @@ public class Main : Node2D {
 			newAsteroid.Connect("body_entered", player, "OnAsteroidHitShip");
 			//Remove ast from asteroids list when it is destroyed.
 			newAsteroid.Connect("child_exiting_tree", this, "OnAsteroidExitTree");
-			//Increment score when asteroid is destroyed.
-			newAsteroid.Connect("child_exiting_tree", this, "score");
 			asteroids.Add(newAsteroid);
 			this.AddChild(newAsteroid);
 		}
@@ -107,9 +113,11 @@ public class Main : Node2D {
 	
 	private void OnAsteroidExitTree(Node poly) {
 		asteroids.Remove( (Asteroid) poly.GetParent());
+		incrementScore();
 	}
 	
-	private void score() {
+	private void incrementScore() {
 		score += 1;
+		Update();	
 	}
 }
